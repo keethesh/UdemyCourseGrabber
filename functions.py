@@ -79,6 +79,9 @@ def get_info_freecourselab(course_name):
         return [last_updated, download_link]
     except NoSuchElementException:
         pass
+    except ElementClickInterceptedException:
+        browser.refresh()
+        get_info_freecourselab()
     finally:
         browser.quit()
 
@@ -94,6 +97,25 @@ def get_info_getfreecourses(course_name):
         last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
         download_link = browser.find_element_by_xpath(
             "//a[@class='fasc-button fasc-size-xlarge fasc-type-flat']").get_attribute(
+            "href")
+        return [last_updated, download_link]
+    except NoSuchElementException:
+        pass
+    finally:
+        browser.quit()
+
+
+def get_info_freecourseudemy(course_name):
+    browser = start_browser()
+    browser.get("https://freecourseudemy.com/?s=" + course_name)
+    try:
+        search_result = browser.find_element_by_link_text(course_name)
+        search_result.click()
+        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated')]").text
+        last_updated = last_updated.split("Last updated ", 1)[1]
+        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
+        download_link = browser.find_element_by_xpath(
+            "//a[contains(@class,'mb-button mb-style-traditional mb-size-default mb-corners-default mb-text-style-heavy')]").get_attribute(
             "href")
         return [last_updated, download_link]
     except NoSuchElementException:
@@ -136,9 +158,18 @@ def get_info(udemy_url):
         pass
 
     try:
+        freecourseudemy_return = get_info_freecourseudemy(course_name)
+        freecourseudemy_date, freecourseudemy_download = freecourseudemy_return[0], freecourseudemy_return[1]
+        freecourseudemy = {"link": freecourseudemy_download, "year": int(freecourseudemy_date[1]),
+                           "month": int(freecourseudemy_date[0])}
+        list_of_dicts.append(freecourseudemy)
+    except TypeError:
+        # print("The website freecourseudemy.com does not have the course \"" + course_name + "\" available")
+        pass
+
+    try:
         final_course = sorted(list_of_dicts, key=itemgetter('year', 'month'), reverse=True)[0]
     except IndexError:
         final_course = None
     return final_course
-
 # print(get_info("https://www.udemy.com/course/learn-ethical-hacking-from-scratch/"))

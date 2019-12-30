@@ -16,5 +16,5 @@ if course_info is None:
     exit("The course wasn't found in any of the sharing websites.")
 for i in range(3):
     print("")
-print("The course can be downloaded at " + course_info["link"] + ".")
-print("It has been last updated in " + str(course_info["month"]) + " of " + str(course_info["year"]) + ".")
+print("The Udemy course \"" + check_udemy_course(udemy_url) + "\" can be downloaded at " + course_info["link"] + ".")
+print("It has last been updated on " + str(course_info["month"]) + "/" + str(course_info["year"]) + ".")
