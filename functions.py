@@ -5,14 +5,18 @@ from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
 
 
+# from main import headless
+
+
 def start_browser():
     opts = Options()
-    # opts.add_argument("--headless")
+    # if headless == "y":
+    opts.add_argument("--headless")
     browser = Firefox(options=opts)
     return browser
 
 
-def check_udemy_course(udemy_url):
+def get_course_name(udemy_url):
     browser = start_browser()
     browser.get(udemy_url)
     try:
@@ -152,7 +156,7 @@ def get_info_desirecourse(course_name):
         last_updated = last_updated.split("Last updated ", 1)[1]
         last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
         download_link = browser.find_element_by_xpath(
-            "//a[contains(@class,'mb-button mb-style-traditional mb-size-default mb-corners-default mb-text-style-default')]").get_attribute(
+            "//a[contains(@class,'mb-button mb-style-traditional mb-size-default mb-corners-default mb-text-style-heavy')]").get_attribute(
             "href")
         return [last_updated, download_link]
     except NoSuchElementException:
@@ -201,24 +205,15 @@ def get_info_myfreecourses(course_name):
 
 
 def get_info(udemy_url):
-    course_name = check_udemy_course(udemy_url)
-    list_of_dicts = []
-    try:
-        getfreecourses_return = get_info_getfreecourses(course_name)
-        getfreecourses_date, getfreecourses_download = getfreecourses_return[0], getfreecourses_return[1]
-        getfreecourses = {"link": getfreecourses_download, "year": int(getfreecourses_date[1]),
-                          "month": int(getfreecourses_date[0])}
-        list_of_dicts.append(getfreecourses)
-    except TypeError:
-        # print("The website getfreecourses.me does not have the course \"" + course_name + " available")
-        pass
+    course_name = get_course_name(udemy_url)
+    results = []
 
     try:
         freecoursesite_return = get_info_freecoursesite(course_name)
         freecoursesite_date, freecoursesite_download = freecoursesite_return[0], freecoursesite_return[1]
         freecoursesite = {"link": freecoursesite_download, "year": int(freecoursesite_date[1]),
                           "month": int(freecoursesite_date[0])}
-        list_of_dicts.append(freecoursesite)
+        results.append(freecoursesite)
     except TypeError:
         # print("The website freecoursesite.com does not have the course \"" + course_name + " available")
         pass
@@ -228,9 +223,19 @@ def get_info(udemy_url):
         freecourselab_date, freecourselab_download = freecourselab_return[0], freecourselab_return[1]
         freecourselab = {"link": freecourselab_download, "year": int(freecourselab_date[1]),
                          "month": int(freecourselab_date[0])}
-        list_of_dicts.append(freecourselab)
+        results.append(freecourselab)
     except TypeError:
         # print("The website freecourselab.com does not have the course \"" + course_name + "\" available")
+        pass
+
+    try:
+        getfreecourses_return = get_info_getfreecourses(course_name)
+        getfreecourses_date, getfreecourses_download = getfreecourses_return[0], getfreecourses_return[1]
+        getfreecourses = {"link": getfreecourses_download, "year": int(getfreecourses_date[1]),
+                          "month": int(getfreecourses_date[0])}
+        results.append(getfreecourses)
+    except TypeError:
+        # print("The website getfreecourses.me does not have the course \"" + course_name + " available")
         pass
 
     try:
@@ -238,7 +243,7 @@ def get_info(udemy_url):
         freecourseudemy_date, freecourseudemy_download = freecourseudemy_return[0], freecourseudemy_return[1]
         freecourseudemy = {"link": freecourseudemy_download, "year": int(freecourseudemy_date[1]),
                            "month": int(freecourseudemy_date[0])}
-        list_of_dicts.append(freecourseudemy)
+        results.append(freecourseudemy)
     except TypeError:
         # print("The website freecourseudemy.com does not have the course \"" + course_name + "\" available")
         pass
@@ -249,7 +254,7 @@ def get_info(udemy_url):
             1]
         paidcoursesforfree = {"link": paidcoursesforfree_download, "year": int(paidcoursesforfree_date[1]),
                               "month": int(paidcoursesforfree_date[0])}
-        list_of_dicts.append(paidcoursesforfree)
+        results.append(paidcoursesforfree)
     except TypeError:
         # print("The website paidcoursesforfree.com does not have the course \"" + course_name + "\" available")
         pass
@@ -260,7 +265,7 @@ def get_info(udemy_url):
             1]
         desirecourse = {"link": desirecourse_download, "year": int(desirecourse_date[1]),
                         "month": int(desirecourse_date[0])}
-        list_of_dicts.append(desirecourse)
+        results.append(desirecourse)
     except TypeError:
         # print("The website desirecourse.com does not have the course \"" + course_name + "\" available")
         pass
@@ -273,7 +278,7 @@ def get_info(udemy_url):
         udemyfreecoursesdownload = {"link": udemyfreecoursesdownload_download,
                                     "year": int(udemyfreecoursesdownload_date[1]),
                                     "month": int(udemyfreecoursesdownload_date[0])}
-        list_of_dicts.append(udemyfreecoursesdownload)
+        results.append(udemyfreecoursesdownload)
     except TypeError:
         # print("The website udemyfreecoursesdownload.com does not have the course \"" + course_name + "\" available")
         pass
@@ -284,14 +289,13 @@ def get_info(udemy_url):
             1]
         myfreecourses = {"link": myfreecourses_download, "year": int(myfreecourses_date[1]),
                          "month": int(myfreecourses_date[0])}
-        list_of_dicts.append(myfreecourses)
+        results.append(myfreecourses)
     except TypeError:
         # print("The website myfreecourses.com does not have the course \"" + course_name + "\" available")
         pass
 
     try:
-        final_course = sorted(list_of_dicts, key=itemgetter('year', 'month'), reverse=True)[0]
+        results_sorted = sorted(results, key=itemgetter('year', 'month'), reverse=True)
     except IndexError:
-        final_course = None
-    return final_course
-# print(get_info("https://www.udemy.com/course/learn-ethical-hacking-from-scratch/"))
+        results_sorted = None
+    return results_sorted
