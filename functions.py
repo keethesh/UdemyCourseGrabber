@@ -21,8 +21,7 @@ def check_udemy_course(udemy_url):
             "//h1[contains(@class,'clp-lead__title')]").text
     except NoSuchElementException:
         raise NoSuchElementException("The provided link is broken")
-    finally:
-        browser.quit()
+    browser.quit()
     return course_name
 
 
@@ -41,7 +40,7 @@ def get_info_freecoursesite(course_name):
     except NoSuchElementException:
         pass
     finally:
-        browser.quit()
+        browser.close()
 
 
 def get_info_freecourselab(course_name):
@@ -83,7 +82,7 @@ def get_info_freecourselab(course_name):
         browser.refresh()
         get_info_freecourselab()
     finally:
-        browser.quit()
+        browser.close()
 
 
 def get_info_getfreecourses(course_name):
@@ -102,7 +101,7 @@ def get_info_getfreecourses(course_name):
     except NoSuchElementException:
         pass
     finally:
-        browser.quit()
+        browser.close()
 
 
 def get_info_freecourseudemy(course_name):
@@ -121,7 +120,84 @@ def get_info_freecourseudemy(course_name):
     except NoSuchElementException:
         pass
     finally:
-        browser.quit()
+        browser.close()
+
+
+def get_info_paidcoursesforfree(course_name):
+    browser = start_browser()
+    browser.get("https://paidcoursesforfree.com/?s=" + course_name)
+    try:
+        search_result = browser.find_element_by_xpath(
+            "//a[contains(text(),'" + str(course_name) + "')]")
+        search_result.click()
+        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated ')]").text
+        last_updated = last_updated.split("Last updated ", 1)[1]
+        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
+        download_link = browser.find_element_by_partial_link_text("Udemy – ").get_attribute("href")
+        return [last_updated, download_link]
+    except NoSuchElementException:
+        pass
+    finally:
+        browser.close()
+
+
+def get_info_desirecourse(course_name):
+    browser = start_browser()
+    browser.get("https://desirecourse.net/?s=" + course_name)
+    try:
+        search_result = browser.find_element_by_xpath(
+            "//a[contains(text(),'" + str(course_name) + "')]")
+        search_result.click()
+        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated ')]").text
+        last_updated = last_updated.split("Last updated ", 1)[1]
+        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
+        download_link = browser.find_element_by_xpath(
+            "//a[contains(@class,'mb-button mb-style-traditional mb-size-default mb-corners-default mb-text-style-default')]").get_attribute(
+            "href")
+        return [last_updated, download_link]
+    except NoSuchElementException:
+        pass
+    finally:
+        browser.close()
+
+
+def get_info_udemyfreecoursesdownload(course_name):
+    browser = start_browser()
+    browser.get("https://udemyfreecoursesdownload.com/?s=" + course_name)
+    try:
+        search_result = browser.find_element_by_xpath(
+            "//a[contains(text(),'" + str(course_name).upper() + "')]")
+        search_result.click()
+        last_updated = browser.find_element_by_xpath("//div[contains(text(),'Final up to date')]").text
+        last_updated = last_updated.split("Final up to date ", 1)[1]
+        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
+        download_link = browser.find_element_by_xpath(
+            "//a[@class='fasc-button fasc-size-xlarge fasc-type-flat']").get_attribute("href")
+        return [last_updated, download_link]
+    except NoSuchElementException:
+        pass
+    finally:
+        browser.close()
+
+
+def get_info_myfreecourses(course_name):
+    browser = start_browser()
+    browser.get("https://myfreecourses.com/?s=" + course_name)
+    try:
+        search_result = browser.find_element_by_xpath(
+            "//a[contains(text(),'" + str(course_name).upper() + "')]")
+        search_result.click()
+        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated ')]").text
+        last_updated = last_updated.split("Last updated ", 1)[1]
+        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
+        download_link = browser.find_element_by_xpath(
+            "//body[@class='post-template-default single single-post postid-26087 single-format-standard has-ednbar']/div[@id='page sb-site']/div[@id='content']/div[@id='primary']/main[@id='main']/article[@id='post-26087']/div[@class='entry-content']/div[@class='requirements__content']/div[@class='audience']/div[@class='requirements__content']/div[@class='audience']/a[1]").get_attribute(
+            "href")
+        return [last_updated, download_link]
+    except NoSuchElementException:
+        pass
+    finally:
+        browser.close()
 
 
 def get_info(udemy_url):
@@ -165,6 +241,52 @@ def get_info(udemy_url):
         list_of_dicts.append(freecourseudemy)
     except TypeError:
         # print("The website freecourseudemy.com does not have the course \"" + course_name + "\" available")
+        pass
+
+    try:
+        paidcoursesforfree_return = get_info_paidcoursesforfree(course_name)
+        paidcoursesforfree_date, paidcoursesforfree_download = paidcoursesforfree_return[0], paidcoursesforfree_return[
+            1]
+        paidcoursesforfree = {"link": paidcoursesforfree_download, "year": int(paidcoursesforfree_date[1]),
+                              "month": int(paidcoursesforfree_date[0])}
+        list_of_dicts.append(paidcoursesforfree)
+    except TypeError:
+        # print("The website paidcoursesforfree.com does not have the course \"" + course_name + "\" available")
+        pass
+
+    try:
+        desirecourse_return = get_info_desirecourse(course_name)
+        desirecourse_date, desirecourse_download = desirecourse_return[0], desirecourse_return[
+            1]
+        desirecourse = {"link": desirecourse_download, "year": int(desirecourse_date[1]),
+                        "month": int(desirecourse_date[0])}
+        list_of_dicts.append(desirecourse)
+    except TypeError:
+        # print("The website desirecourse.com does not have the course \"" + course_name + "\" available")
+        pass
+
+    try:
+        udemyfreecoursesdownload_return = get_info_udemyfreecoursesdownload(course_name)
+        udemyfreecoursesdownload_date, udemyfreecoursesdownload_download = udemyfreecoursesdownload_return[0], \
+                                                                           udemyfreecoursesdownload_return[
+                                                                               1]
+        udemyfreecoursesdownload = {"link": udemyfreecoursesdownload_download,
+                                    "year": int(udemyfreecoursesdownload_date[1]),
+                                    "month": int(udemyfreecoursesdownload_date[0])}
+        list_of_dicts.append(udemyfreecoursesdownload)
+    except TypeError:
+        # print("The website udemyfreecoursesdownload.com does not have the course \"" + course_name + "\" available")
+        pass
+
+    try:
+        myfreecourses_return = get_info_myfreecourses(course_name)
+        myfreecourses_date, myfreecourses_download = myfreecourses_return[0], myfreecourses_return[
+            1]
+        myfreecourses = {"link": myfreecourses_download, "year": int(myfreecourses_date[1]),
+                         "month": int(myfreecourses_date[0])}
+        list_of_dicts.append(myfreecourses)
+    except TypeError:
+        # print("The website myfreecourses.com does not have the course \"" + course_name + "\" available")
         pass
 
     try:
