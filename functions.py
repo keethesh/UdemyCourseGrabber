@@ -3,22 +3,10 @@ from operator import itemgetter
 from selenium.common.exceptions import *
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
+from webdriver_manager.firefox import GeckoDriverManager
 
-
-# from main import headless
-
-
-def start_browser():
-    opts = Options()
-    # if headless == "y":
-    opts.add_argument("--headless")
-    browser = Firefox(options=opts)
-    return browser
-
-browser = start_browser()
 
 def get_course_name(udemy_url):
-    # browser = start_browser()
     browser.get(udemy_url)
     try:
         browser.find_element_by_css_selector(".btn-primary > span:nth-child(1)")
@@ -31,7 +19,6 @@ def get_course_name(udemy_url):
 
 
 def get_info_freecoursesite(course_name):
-    # browser = start_browser()
     browser.get("https://freecoursesite.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -49,7 +36,6 @@ def get_info_freecoursesite(course_name):
 
 
 def get_info_freecourselab(course_name):
-    # browser = start_browser()
     browser.get("https://freecourselab.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -91,7 +77,6 @@ def get_info_freecourselab(course_name):
 
 
 def get_info_getfreecourses(course_name):
-    # browser = start_browser()
     browser.get("https://getfreecourses.me/?s=" + course_name)
     try:
         search_result = browser.find_element_by_link_text(course_name.upper())
@@ -110,7 +95,6 @@ def get_info_getfreecourses(course_name):
 
 
 def get_info_freecourseudemy(course_name):
-    # browser = start_browser()
     browser.get("https://freecourseudemy.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_link_text(course_name)
@@ -129,7 +113,6 @@ def get_info_freecourseudemy(course_name):
 
 
 def get_info_paidcoursesforfree(course_name):
-    # browser = start_browser()
     browser.get("https://paidcoursesforfree.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -147,7 +130,6 @@ def get_info_paidcoursesforfree(course_name):
 
 
 def get_info_desirecourse(course_name):
-    # browser = start_browser()
     browser.get("https://desirecourse.net/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -157,7 +139,8 @@ def get_info_desirecourse(course_name):
         last_updated = last_updated.split("Last updated ", 1)[1]
         last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
         download_link = browser.find_element_by_xpath(
-            "//a[contains(@class,'mb-button mb-style-traditional mb-size-default mb-corners-default mb-text-style-heavy')]").get_attribute(
+            "//a[contains(@class,'mb-button mb-style-traditional mb-size-default mb-corners-default "
+            "mb-text-style-heavy')]").get_attribute(
             "href")
         return [last_updated, download_link]
     except NoSuchElementException:
@@ -167,7 +150,6 @@ def get_info_desirecourse(course_name):
 
 
 def get_info_udemyfreecoursesdownload(course_name):
-    # browser = start_browser()
     browser.get("https://udemyfreecoursesdownload.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -186,7 +168,6 @@ def get_info_udemyfreecoursesdownload(course_name):
 
 
 def get_info_myfreecourses(course_name):
-    # browser = start_browser()
     browser.get("https://myfreecourses.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -301,3 +282,13 @@ def get_info(udemy_url):
     except IndexError:
         results_sorted = None
     return results_sorted
+
+
+opts = Options()
+# if headless == "y":
+opts.add_argument("--headless")
+try:
+    browser = Firefox(options=opts)
+except WebDriverException:
+    print("Geckodriver not detected, it will now be downloaded...")
+    browser = Firefox(executable_path=GeckoDriverManager().install(), options=opts)
