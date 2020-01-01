@@ -16,6 +16,10 @@ git
 apt-get update
 apt-get install git
 ```
+Firefox-ESR
+```bash
+apt-get update
+apt-get install firefox-esr
 ### Install instructions
 ```git
 git clone https://github.com/keethesh/UdemyCourseGrabber.git
@@ -35,7 +39,7 @@ And then follow the instructions in the program
 
 ### Todo
  - [ ] Use concurrency for faster program execution
- - [ ]
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
