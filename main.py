@@ -18,9 +18,10 @@ udemy_url = input("Paste in your Udemy course URL: ")
 # headless = input("Do you want to run the browser in headless mode? (Y/n): ").lower()
 # if not headless == ("y" or "n"):
 #     headless = "y"
+
 course_name = get_course_name(udemy_url)
 course_info = get_info(udemy_url)
-if course_info is None:
+if len(course_info) == 0:
     exit("The course wasn't found in any of the sharing websites.")
 for i in range(3):
     print("")
@@ -38,12 +39,13 @@ if copy_to_clipboard == "y":
     print("")
     print("The link has successfully been copied to clipboard.")
 
-see_all = input("Do you want to see the other links as well? (y/N): ").lower()
-if not see_all == ("y" or "n"):
-    see_all = "n"
-if see_all == "y":
-    for i in range(1, len(course_info) - 1):
-        print("Last update: " + str(course_info[i]["month"]) + "/" + str(course_info[i]["year"]))
-        print("Download link: " + str(course_info[i]["link"]))
-        print("")
+if len(course_info) >= 1:
+    see_all = input("Do you want to see the other links as well? (y/N): ").lower()
+    if not see_all == ("y" or "n"):
+        see_all = "n"
+    if see_all == "y":
+        for i in range(1, len(course_info) - 1):
+            print("Last update: " + str(course_info[i]["month"]) + "/" + str(course_info[i]["year"]))
+            print("Download link: " + str(course_info[i]["link"]))
+            print("")
 exit("My work here is done. Script execution finished.")

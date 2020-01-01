@@ -15,9 +15,10 @@ def start_browser():
     browser = Firefox(options=opts)
     return browser
 
+browser = start_browser()
 
 def get_course_name(udemy_url):
-    browser = start_browser()
+    # browser = start_browser()
     browser.get(udemy_url)
     try:
         browser.find_element_by_css_selector(".btn-primary > span:nth-child(1)")
@@ -25,12 +26,12 @@ def get_course_name(udemy_url):
             "//h1[contains(@class,'clp-lead__title')]").text
     except NoSuchElementException:
         raise NoSuchElementException("The provided link is broken")
-    browser.quit()
+    # browser.quit()
     return course_name
 
 
 def get_info_freecoursesite(course_name):
-    browser = start_browser()
+    # browser = start_browser()
     browser.get("https://freecoursesite.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -43,12 +44,12 @@ def get_info_freecoursesite(course_name):
         return [last_updated, download_link]
     except NoSuchElementException:
         pass
-    finally:
-        browser.close()
+    # finally:
+    #     browser.close()
 
 
 def get_info_freecourselab(course_name):
-    browser = start_browser()
+    # browser = start_browser()
     browser.get("https://freecourselab.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -85,12 +86,12 @@ def get_info_freecourselab(course_name):
     except ElementClickInterceptedException:
         browser.refresh()
         get_info_freecourselab()
-    finally:
-        browser.close()
+    # finally:
+    # browser.close()
 
 
 def get_info_getfreecourses(course_name):
-    browser = start_browser()
+    # browser = start_browser()
     browser.get("https://getfreecourses.me/?s=" + course_name)
     try:
         search_result = browser.find_element_by_link_text(course_name.upper())
@@ -104,12 +105,12 @@ def get_info_getfreecourses(course_name):
         return [last_updated, download_link]
     except NoSuchElementException:
         pass
-    finally:
-        browser.close()
+    # finally:
+    #     browser.close()
 
 
 def get_info_freecourseudemy(course_name):
-    browser = start_browser()
+    # browser = start_browser()
     browser.get("https://freecourseudemy.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_link_text(course_name)
@@ -123,12 +124,12 @@ def get_info_freecourseudemy(course_name):
         return [last_updated, download_link]
     except NoSuchElementException:
         pass
-    finally:
-        browser.close()
+    # finally:
+    #     browser.close()
 
 
 def get_info_paidcoursesforfree(course_name):
-    browser = start_browser()
+    # browser = start_browser()
     browser.get("https://paidcoursesforfree.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -141,12 +142,12 @@ def get_info_paidcoursesforfree(course_name):
         return [last_updated, download_link]
     except NoSuchElementException:
         pass
-    finally:
-        browser.close()
+    # finally:
+    #     browser.close()
 
 
 def get_info_desirecourse(course_name):
-    browser = start_browser()
+    # browser = start_browser()
     browser.get("https://desirecourse.net/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -161,12 +162,12 @@ def get_info_desirecourse(course_name):
         return [last_updated, download_link]
     except NoSuchElementException:
         pass
-    finally:
-        browser.close()
+    # finally:
+    #     browser.close()
 
 
 def get_info_udemyfreecoursesdownload(course_name):
-    browser = start_browser()
+    # browser = start_browser()
     browser.get("https://udemyfreecoursesdownload.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -180,12 +181,12 @@ def get_info_udemyfreecoursesdownload(course_name):
         return [last_updated, download_link]
     except NoSuchElementException:
         pass
-    finally:
-        browser.close()
+    # finally:
+    #     browser.close()
 
 
 def get_info_myfreecourses(course_name):
-    browser = start_browser()
+    # browser = start_browser()
     browser.get("https://myfreecourses.com/?s=" + course_name)
     try:
         search_result = browser.find_element_by_xpath(
@@ -200,8 +201,8 @@ def get_info_myfreecourses(course_name):
         return [last_updated, download_link]
     except NoSuchElementException:
         pass
-    finally:
-        browser.close()
+    # finally:
+    #     browser.close()
 
 
 def get_info(udemy_url):
@@ -294,6 +295,7 @@ def get_info(udemy_url):
         # print("The website myfreecourses.com does not have the course \"" + course_name + "\" available")
         pass
 
+    browser.quit()
     try:
         results_sorted = sorted(results, key=itemgetter('year', 'month'), reverse=True)
     except IndexError:
