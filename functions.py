@@ -3,7 +3,10 @@ from operator import itemgetter
 from selenium.common.exceptions import *
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
-from webdriver_manager.firefox import GeckoDriverManager
+from webdrivermanager import GeckoDriverManager
+
+
+# from webdriver_manager.firefox import GeckoDriverManager
 
 
 def get_course_name(udemy_url):
@@ -291,4 +294,6 @@ try:
     browser = Firefox(options=opts)
 except WebDriverException:
     print("Geckodriver not detected, it will now be downloaded...")
-    browser = Firefox(executable_path=GeckoDriverManager().install(), options=opts)
+    gdd = GeckoDriverManager()
+    gdd.download_and_install()
+    browser = Firefox(options=opts)

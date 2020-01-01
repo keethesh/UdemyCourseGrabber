@@ -29,7 +29,7 @@ if copy_to_clipboard == "y":
     print("")
     print("The link has successfully been copied to clipboard.")
 
-if len(course_info) >= 1:
+if len(course_info) > 1:
     see_all = input("Do you want to see the other links as well? (y/N): ").lower()
     if not see_all == ("y" or "n"):
         see_all = "n"
