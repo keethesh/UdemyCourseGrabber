@@ -4,16 +4,6 @@ import pyperclip
 
 from functions import *
 
-# Uncomment following lines to have an ascii_art
-
-# ascii_art = art.text2art('''Udemy
-# Course
-# Grabber''', "wizard")
-# print(ascii_art)
-# sleep(2)
-# for i in range(2):
-#     print("")
-
 udemy_url = input("Paste in your Udemy course URL: ")
 # headless = input("Do you want to run the browser in headless mode? (Y/n): ").lower()
 # if not headless == ("y" or "n"):
