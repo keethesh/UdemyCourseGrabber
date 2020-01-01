@@ -34,12 +34,11 @@ pip3 install -r requirements.txt
 ```bash
 python3 main.py
 ```
-And then follow the instructions in the program
-
 
 ### Todo
  - [ ] Use concurrency for faster program execution
-
+ - [ ] Add support for other browsers, such as Chrome, Opera or IE
+ - [ ] Add a command-line version, needing no further interactions than giving arguments at start
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
