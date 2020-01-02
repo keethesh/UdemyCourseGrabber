@@ -20,6 +20,7 @@ Firefox-ESR
 ```bash
 apt-get update
 apt-get install firefox-esr
+```
 ### Install instructions
 ```git
 git clone https://github.com/keethesh/UdemyCourseGrabber.git
