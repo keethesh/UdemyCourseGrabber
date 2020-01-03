@@ -3,12 +3,9 @@ from re import findall
 
 import pyperclip
 
-from functions import *
-
 udemy_url = input("Paste in your Udemy course URL: ")
 print("")
 print("Search starting...")
-print("")
 # headless = input("Do you want to run the browser in headless mode? (Y/n): ").lower()
 # if not headless == ("y" or "n"):
 #     headless = "y"

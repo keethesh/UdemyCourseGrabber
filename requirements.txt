@@ -1,3 +1,4 @@
+tqdm
 tldextract
 webdrivermanager
 pyperclip
