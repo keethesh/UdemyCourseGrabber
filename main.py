@@ -1,6 +1,6 @@
 import time
 from re import findall
-
+from functions import *
 import pyperclip
 
 udemy_url = input("Paste in your Udemy course URL: ")
