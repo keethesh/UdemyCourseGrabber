@@ -1,3 +1,4 @@
+tldextract
 webdrivermanager
 pyperclip
 selenium
