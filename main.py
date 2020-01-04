@@ -14,9 +14,9 @@ if len(course_info) == 0:
 for i in range(3):
     print("")
 download_link = course_info[0].get("link")
-if "magnet" in download_link:
-    download_link = findall("magnet:?xt=urn:btih:[a-zA-Z0-9]*", download_link)
 
+if "magnet" in download_link:
+    download_link = findall("magnet:?xt=urn:btih:[a-zA-Z0-9]*", download_link)[0]
 print("The Udemy course \"" + course_name + "\" can be downloaded at " + download_link)
 print("It has last been updated on " + str(course_info[0]["month"]) + "/" + str(course_info[0]["year"]) +
       ", and was fetched from " + str(course_info[0]["website"]))
