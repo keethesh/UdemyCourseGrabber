@@ -1,12 +1,25 @@
 from operator import itemgetter
 
+import tldextract
 from selenium.common.exceptions import *
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
+from tqdm import *
 from webdrivermanager import GeckoDriverManager
 
 
-# from webdriver_manager.firefox import GeckoDriverManager
+def start_browser():
+    opts = Options()
+    # if headless == "y":
+    opts.add_argument("--headless")
+    try:
+        driver = Firefox(options=opts)
+    except WebDriverException:
+        print("Geckodriver not detected, it will now be downloaded...")
+        gdd = GeckoDriverManager()
+        gdd.download_and_install()
+        driver = Firefox(options=opts)
+    return driver
 
 
 def get_course_name(udemy_url):
@@ -17,371 +30,134 @@ def get_course_name(udemy_url):
             "//h1[contains(@class,'clp-lead__title')]").text
     except NoSuchElementException:
         raise NoSuchElementException("The provided link is broken")
-    # browser.quit()
     return course_name
 
 
-def get_info_freecoursesite(course_name):
-    browser.get("https://freecoursesite.com/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_xpath(
-            "//a[contains(text(),'" + str(course_name) + "')]")
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//*[contains(text(), 'Last updated')]").text
-        last_updated = last_updated.split("Last updated ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_xpath("//div[@class='audience']//p//a").get_attribute("href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_freecoursesite(course_name)
-    # finally:
-    #     browser.close()
+def get_sites(course_name):
+    course_info = []
+    values = tqdm(sites.values())
+    for site in values:
+        ext = tldextract.extract(site.get("search_link"))
+        website = ext.domain + "." + ext.suffix
+        tqdm.set_description(values, desc=("Searching for course on " + website))
+        successful = False
 
+        while not successful:
+            browser.get(site.get("search_link") + course_name)
 
-def get_info_freecourselab(course_name):
-    browser.get("https://freecourselab.com/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_xpath(
-            "//body[contains(@class,'bs-hide-ha bs-ll-d')]/div[contains(@class,'main-wrap content-main-wrap')]/div["
-            "contains(@class,'content-wrap')]/main[@id='content']/div[contains(@class,'container layout-2-col "
-            "layout-2-col-1 layout-right-sidebar')]/div[contains(@class,'row main-section')]/div[contains(@class,"
-            "'col-sm-8 content-column')]/div[contains(@class,'listing listing-grid listing-grid-1 clearfix "
-            "columns-2')]/article[1]/div[1]/div[1]/a[1]")
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated ')]").text
-        last_updated = last_updated.split("Last updated ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_xpath(
-            "//a[contains(@class,'mb-button mb-style-flat mb-size-default mb-corners-default mb-text-style-default')]").get_attribute(
-            "href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_freecourselab(course_name)
-    # finally:
-    # browser.close()
+            try:
+                search_result = browser.find_element_by_xpath(
+                    site.get("search_element") + str(course_name) + "')]")
 
+            except NoSuchElementException:
+                try:
+                    search_result = browser.find_element_by_xpath(
+                        site.get("search_element") + str(course_name).upper() + "')]")
+                except NoSuchElementException:
+                    successful = True
+                    continue
+            try:
+                search_result.click()
+                last_updated = browser.find_element_by_xpath(site.get("last_updated_element")).text
 
-def get_info_getfreecourses(course_name):
-    browser.get("https://getfreecourses.me/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_link_text(course_name.upper())
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//div[contains(text(),'Last updated')]").text
-        last_updated = last_updated.split("Last updated ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_xpath(
-            "//a[@class='fasc-button fasc-size-xlarge fasc-type-flat']").get_attribute(
-            "href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_getfreecourses(course_name)
-    # finally:
-    #     browser.close()
+                if "custom_split" in site:
+                    last_updated = last_updated.split(site.get("custom_split"), 1)[1]
+                else:
+                    last_updated = last_updated.split("Last updated ", 1)[1]
+                last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
 
+                if "custom_download_link_by" in site and site.get("custom_download_link_by") == "plt":
+                    download_link = browser.find_element_by_partial_link_text(
+                        site.get("download_link_element")).get_attribute("href")
+                else:
+                    download_link = browser.find_element_by_xpath(site.get("download_link_element")).get_attribute(
+                        "href")
+                course_info.append({"link": download_link, "year": int(last_updated[1]), "month": int(last_updated[0]),
+                                    "website": website})
+                successful = True
 
-def get_info_freecourseudemy(course_name):
-    browser.get("https://freecourseudemy.com/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_link_text(course_name)
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated')]").text
-        last_updated = last_updated.split("Last updated ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_xpath(
-            "//a[contains(@class,'mb-button mb-style-traditional mb-size-default mb-corners-default mb-text-style-heavy')]").get_attribute(
-            "href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_freecourseudemy(course_name)
-    # finally:
-    #     browser.close()
+            except ElementClickInterceptedException:
+                successful = False
 
-
-def get_info_paidcoursesforfree(course_name):
-    browser.get("https://paidcoursesforfree.com/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_xpath(
-            "//a[contains(text(),'" + str(course_name) + "')]")
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated ')]").text
-        last_updated = last_updated.split("Last updated ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_partial_link_text("Udemy – ").get_attribute("href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_paidcoursesforfree(course_name)
-    # finally:
-    #     browser.close()
-
-
-def get_info_desirecourse(course_name):
-    browser.get("https://desirecourse.net/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_xpath(
-            "//a[contains(text(),'" + str(course_name) + "')]")
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated ')]").text
-        last_updated = last_updated.split("Last updated ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_xpath(
-            "//a[contains(@class,'mb-button mb-style-traditional mb-size-default mb-corners-default "
-            "mb-text-style-heavy')]").get_attribute(
-            "href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_desirecourse(course_name)
-    # finally:
-    #     browser.close()
-
-
-def get_info_udemyfreecoursesdownload(course_name):
-    browser.get("https://udemyfreecoursesdownload.com/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_xpath(
-            "//a[contains(text(),'" + str(course_name).upper() + "')]")
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//div[contains(text(),'Final up to date')]").text
-        last_updated = last_updated.split("Final up to date ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_xpath(
-            "//a[@class='fasc-button fasc-size-xlarge fasc-type-flat']").get_attribute("href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_udemyfreecoursesdownload(course_name)
-    # finally:
-    #     browser.close()
-
-
-def get_info_myfreecourses(course_name):
-    browser.get("https://myfreecourses.com/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_xpath(
-            "//a[contains(text(),'" + str(course_name).upper() + "')]")
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated ')]").text
-        last_updated = last_updated.split("Last updated ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_xpath(
-            "//body[@class='post-template-default single single-post postid-26087 single-format-standard has-ednbar']/div[@id='page sb-site']/div[@id='content']/div[@id='primary']/main[@id='main']/article[@id='post-26087']/div[@class='entry-content']/div[@class='requirements__content']/div[@class='audience']/div[@class='requirements__content']/div[@class='audience']/a[1]").get_attribute(
-            "href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_myfreecourses(course_name)
-    # finally:
-    #     browser.close()
-
-
-def get_info_tutorialsplanet(course_name):
-    browser.get("https://www.tutorialsplanet.net/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_xpath(
-            "//a[contains(text(),'" + str(course_name).upper() + "')]")
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated ')]").text
-        last_updated = last_updated.split("Last updated ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_xpath(
-            "//strong[contains(text(),'Download now')]").get_attribute(
-            "href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_tutorialsplanet(course_name)
-
-
-def get_info_freecoursenet(course_name):
-    browser.get("https://www.freecoursenet.cc/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_xpath(
-            "//a[contains(text(),'" + str(course_name).upper() + "')]")
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated ')]").text
-        last_updated = last_updated.split("Last updated ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_xpath(
-            "//a[@class='wp-block-button__link has-background has-vivid-green-cyan-background-color']").get_attribute(
-            "href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_tutorialsplanet(course_name)
-
-
-def get_info_udemy24(course_name):
-    browser.get("https://udemy24.com/?s=" + course_name)
-    try:
-        search_result = browser.find_element_by_xpath(
-            "//a[contains(text(),'" + str(course_name).upper() + "')]")
-        search_result.click()
-        last_updated = browser.find_element_by_xpath("//strong[contains(text(),'Last updated ')]").text
-        last_updated = last_updated.split("Last updated ", 1)[1]
-        last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
-        download_link = browser.find_element_by_xpath(
-            "///a[contains(text(),'Download Course')]").get_attribute(
-            "href")
-        return [last_updated, download_link]
-    except NoSuchElementException:
-        pass
-    except ElementClickInterceptedException:
-        get_info_udemy24(course_name)
-
-
-def get_info(udemy_url):
-    course_name = get_course_name(udemy_url)
-    results = []
-
-    try:
-        freecoursesite_return = get_info_freecoursesite(course_name)
-        freecoursesite_date, freecoursesite_download = freecoursesite_return[0], freecoursesite_return[1]
-        freecoursesite = {"link": freecoursesite_download, "year": int(freecoursesite_date[1]),
-                          "month": int(freecoursesite_date[0])}
-        results.append(freecoursesite)
-    except TypeError:
-        # print("The website freecoursesite.com does not have the course \"" + course_name + " available")
-        pass
-
-    try:
-        freecourselab_return = get_info_freecourselab(course_name)
-        freecourselab_date, freecourselab_download = freecourselab_return[0], freecourselab_return[1]
-        freecourselab = {"link": freecourselab_download, "year": int(freecourselab_date[1]),
-                         "month": int(freecourselab_date[0])}
-        results.append(freecourselab)
-    except TypeError:
-        # print("The website freecourselab.com does not have the course \"" + course_name + "\" available")
-        pass
-
-    try:
-        getfreecourses_return = get_info_getfreecourses(course_name)
-        getfreecourses_date, getfreecourses_download = getfreecourses_return[0], getfreecourses_return[1]
-        getfreecourses = {"link": getfreecourses_download, "year": int(getfreecourses_date[1]),
-                          "month": int(getfreecourses_date[0])}
-        results.append(getfreecourses)
-    except TypeError:
-        # print("The website getfreecourses.me does not have the course \"" + course_name + " available")
-        pass
-
-    try:
-        freecourseudemy_return = get_info_freecourseudemy(course_name)
-        freecourseudemy_date, freecourseudemy_download = freecourseudemy_return[0], freecourseudemy_return[1]
-        freecourseudemy = {"link": freecourseudemy_download, "year": int(freecourseudemy_date[1]),
-                           "month": int(freecourseudemy_date[0])}
-        results.append(freecourseudemy)
-    except TypeError:
-        # print("The website freecourseudemy.com does not have the course \"" + course_name + "\" available")
-        pass
-
-    try:
-        paidcoursesforfree_return = get_info_paidcoursesforfree(course_name)
-        paidcoursesforfree_date, paidcoursesforfree_download = paidcoursesforfree_return[0], paidcoursesforfree_return[
-            1]
-        paidcoursesforfree = {"link": paidcoursesforfree_download, "year": int(paidcoursesforfree_date[1]),
-                              "month": int(paidcoursesforfree_date[0])}
-        results.append(paidcoursesforfree)
-    except TypeError:
-        # print("The website paidcoursesforfree.com does not have the course \"" + course_name + "\" available")
-        pass
-
-    try:
-        desirecourse_return = get_info_desirecourse(course_name)
-        desirecourse_date, desirecourse_download = desirecourse_return[0], desirecourse_return[
-            1]
-        desirecourse = {"link": desirecourse_download, "year": int(desirecourse_date[1]),
-                        "month": int(desirecourse_date[0])}
-        results.append(desirecourse)
-    except TypeError:
-        # print("The website desirecourse.com does not have the course \"" + course_name + "\" available")
-        pass
-
-    try:
-        udemyfreecoursesdownload_return = get_info_udemyfreecoursesdownload(course_name)
-        udemyfreecoursesdownload_date, udemyfreecoursesdownload_download = udemyfreecoursesdownload_return[0], \
-                                                                           udemyfreecoursesdownload_return[
-                                                                               1]
-        udemyfreecoursesdownload = {"link": udemyfreecoursesdownload_download,
-                                    "year": int(udemyfreecoursesdownload_date[1]),
-                                    "month": int(udemyfreecoursesdownload_date[0])}
-        results.append(udemyfreecoursesdownload)
-    except TypeError:
-        # print("The website udemyfreecoursesdownload.com does not have the course \"" + course_name + "\" available")
-        pass
-
-    try:
-        myfreecourses_return = get_info_myfreecourses(course_name)
-        myfreecourses_date, myfreecourses_download = myfreecourses_return[0], myfreecourses_return[
-            1]
-        myfreecourses = {"link": myfreecourses_download, "year": int(myfreecourses_date[1]),
-                         "month": int(myfreecourses_date[0])}
-        results.append(myfreecourses)
-    except TypeError:
-        # print("The website myfreecourses.com does not have the course \"" + course_name + "\" available")
-        pass
-
-    try:
-        tutorialsplanet_return = get_info_tutorialsplanet(course_name)
-        tutorialsplanet_date, tutorialsplanet_download = tutorialsplanet_return[0], tutorialsplanet_return[
-            1]
-        tutorialsplanet = {"link": tutorialsplanet_download, "year": int(tutorialsplanet_date[1]),
-                           "month": int(tutorialsplanet_date[0])}
-        results.append(tutorialsplanet)
-    except TypeError:
-        # print("The website tutorialsplanet.com does not have the course \"" + course_name + "\" available")
-        pass
-
-    try:
-        freecoursenet_return = get_info_freecoursenet(course_name)
-        freecoursenet_date, freecoursenet_download = freecoursenet_return[0], freecoursenet_return[
-            1]
-        freecoursenet = {"link": freecoursenet_download, "year": int(freecoursenet_date[1]),
-                         "month": int(freecoursenet_date[0])}
-        results.append(freecoursenet)
-    except TypeError:
-        # print("The website freecoursenet.com does not have the course \"" + course_name + "\" available")
-        pass
-
-    try:
-        udemy24_return = get_info_udemy24(course_name)
-        udemy24_date, udemy24_download = udemy24_return[0], udemy24_return[
-            1]
-        udemy24 = {"link": udemy24_download, "year": int(udemy24_date[1]),
-                   "month": int(udemy24_date[0])}
-        results.append(udemy24)
-    except TypeError:
-        # print("The website udemy24.com does not have the course \"" + course_name + "\" available")
-        pass
+            except NoSuchElementException:
+                successful = True
+                continue
 
     browser.quit()
+
     try:
-        results_sorted = sorted(results, key=itemgetter('year', 'month'), reverse=True)
+        results_sorted = sorted(course_info, key=itemgetter("year", "month"), reverse=True)
     except IndexError:
         results_sorted = None
     return results_sorted
 
 
-opts = Options()
-# if headless == "y":
-opts.add_argument("--headless")
-try:
-    browser = Firefox(options=opts)
-except WebDriverException:
-    print("Geckodriver not detected, it will now be downloaded...")
-    gdd = GeckoDriverManager()
-    gdd.download_and_install()
-    browser = Firefox(options=opts)
+freecoursesite = {"search_link": "https://freecoursesite.com/?s=", "search_element": "//a[contains(text(),'",
+                  "last_updated_element": "//*[contains(text(), 'Last updated')]",
+                  "download_link_element": "//div[@class='audience']//p//a"}
+
+freecourselab = {"search_link": "https://freecourselab.com/?s=",
+                 "search_element": "//a[contains(text(),'",
+                 "last_updated_element": "//strong[contains(text(),'Last updated ')]",
+                 "download_link_element": "//a[contains(@class,'mb-button mb-style-flat mb-size-default "
+                                          "mb-corners-default mb-text-style-default')]"}
+
+getfreecourses = {"search_link": "https://getfreecourses.me/?s=", "search_element": "//a[contains(text(),'",
+                  "last_updated_element": "//div[contains(text(),'Last updated ')]",
+                  "download_link_element": "//a[@class='fasc-button fasc-size-xlarge fasc-type-flat']"}
+
+freecourseudemy = {"search_link": "https://freecourseudemy.com/?s=", "search_element": "//a[contains(text(),'",
+                   "last_updated_element": "//strong[contains(text(),'Last updated ')]",
+                   "download_link_element": "//a[contains(@class,'mb-button mb-style-traditional mb-size-default "
+                                            "mb-corners-default mb-text-style-heavy')]"}
+
+paidcoursesforfree = {"search_link": "https://paidcoursesforfree.com/?s=", "search_element": "//a[contains(text(),'",
+                      "last_updated_element": "//strong[contains(text(),'Last updated ')]",
+                      "download_link_element": "Udemy – ", "custom_download_link_by": "plt"}
+
+desirecourse = {"search_link": "https://desirecourse.net/?s=", "search_element": "//a[contains(text(),'",
+                "last_updated_element": "//strong[contains(text(),'Last updated ')]",
+                "download_link_element": "//a[contains(@class,'mb-button mb-style-traditional mb-size-default "
+                                         "mb-corners-default "
+                                         "mb-text-style-heavy')]"}
+
+udemyfreecoursesdownload = {"search_link": "https://udemyfreecoursesdownload.com/?s=",
+                            "search_element": "//a[contains(text(),'",
+                            "last_updated_element": "//div[contains(text(),'Final up to date')]",
+                            "download_link_element": "//a[@class='fasc-button fasc-size-xlarge fasc-type-flat']",
+                            "custom_split": "Final up to date "}
+
+myfreecourses = {"search_link": "https://myfreecourses.com/?s=", "search_element": "//a[contains(text(),'",
+                 "last_updated_element": "//strong[contains(text(),'Last updated ')]",
+                 "download_link_element": "//body[@class='post-template-default single single-post postid-26087 "
+                                          "single-format-standard has-ednbar']/div[@id='page sb-site']/div["
+                                          "@id='content']/div[@id='primary']/main[@id='main']/article["
+                                          "@id='post-26087']/div[@class='entry-content']/div["
+                                          "@class='requirements__content']/div[@class='audience']/div["
+                                          "@class='requirements__content']/div[@class='audience']/a[1]"}
+
+tutorialsplanet = {"search_link": "https://tutorialsplanet.net/?s=", "search_element": "//a[contains(text(),'",
+                   "last_updated_element": "//strong[contains(text(),'Last updated ')]",
+                   "download_link_element": "//div[contains(@class,'audience')]//p//a"}
+
+freecoursenet = {"search_link": "https://freecoursenet.cc/?s=", "search_element": "//a[contains(text(),'",
+                 "last_updated_element": "//strong[contains(text(),'Last updated ')]",
+                 "download_link_element": "//strong[contains(text(),'Download now')]"}
+
+udemy24 = {"search_link": "https://udemy24.com/?s=", "search_element": "//a[contains(text(),'",
+           "last_updated_element": "//strong[contains(text(),'Last updated ')]",
+           "download_link_element": "///a[contains(text(),'Download Course')]"}
+
+sites = {"freecoursesite": freecoursesite,
+         "freecourselab": freecourselab,
+         "getfreecourses": getfreecourses,
+         "freecourseudemy": freecourseudemy,
+         "paidcoursesforfree": paidcoursesforfree,
+         "desirecourse": desirecourse,
+         "udemyfreecoursesdownload": udemyfreecoursesdownload,
+         "tutorialsplanet": tutorialsplanet,
+         "myfreecourses": myfreecourses,
+         "freecoursenet": freecoursenet,
+         "udemy24": udemy24}
+
+browser = start_browser()
