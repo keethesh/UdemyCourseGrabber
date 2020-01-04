@@ -7,7 +7,6 @@ from functions import *
 
 udemy_url = input("Paste in your Udemy course URL: ")
 print("")
-print("Search starting...")
 course_name = get_course_name(udemy_url)
 course_info = get_sites(course_name)
 if len(course_info) == 0:
@@ -21,11 +20,11 @@ if "magnet" in download_link:
 print("The Udemy course \"" + course_name + "\" can be downloaded at " + download_link)
 print("It has last been updated on " + str(course_info[0]["month"]) + "/" + str(course_info[0]["year"]) +
       ", and was fetched from " + str(course_info[0]["website"]))
+print("")
 
 copy_to_clipboard = input("Do you want me to copy the link to your clipboard? (Y/n): ").upper()
 if copy_to_clipboard == "Y" or copy_to_clipboard != "N":
     pyperclip.copy(download_link)
-    print("")
     print("The link has successfully been copied to clipboard.")
 
 if len(course_info) > 1:
