@@ -13,13 +13,13 @@ def start_browser():
     # if headless == "y":
     opts.add_argument("--headless")
     try:
-        browser = Firefox(options=opts)
+        driver = Firefox(options=opts)
     except WebDriverException:
         print("Geckodriver not detected, it will now be downloaded...")
         gdd = GeckoDriverManager()
         gdd.download_and_install()
-        browser = Firefox(options=opts)
-    return browser
+        driver = Firefox(options=opts)
+    return driver
 
 
 def get_course_name(udemy_url):
@@ -39,42 +39,54 @@ def get_sites(course_name):
     for site in values:
         ext = tldextract.extract(site.get("search_link"))
         website = ext.domain + "." + ext.suffix
-        tqdm.set_description(values, desc=("Searching course on " + website))
+        tqdm.set_description(values, desc=("Searching for course on " + website))
         successful = False
+
         while not successful:
             browser.get(site.get("search_link") + course_name)
+
             try:
+                search_result = browser.find_element_by_xpath(
+                    site.get("search_element") + str(course_name) + "')]")
+
+            except NoSuchElementException:
                 try:
                     search_result = browser.find_element_by_xpath(
-                        site.get("search_element") + str(course_name) + "')]")
-                except NoSuchElementException:
-                    search_result = browser.find_element_by_xpath(
                         site.get("search_element") + str(course_name).upper() + "')]")
+                except NoSuchElementException:
+                    successful = True
+                    continue
+            try:
                 search_result.click()
-
                 last_updated = browser.find_element_by_xpath(site.get("last_updated_element")).text
+
                 if "custom_split" in site:
                     last_updated = last_updated.split(site.get("custom_split"), 1)[1]
                 else:
                     last_updated = last_updated.split("Last updated ", 1)[1]
                 last_updated = [last_updated.split("/", 1)[0], last_updated.split("/", 1)[1]]
+
                 if "custom_download_link_by" in site and site.get("custom_download_link_by") == "plt":
                     download_link = browser.find_element_by_partial_link_text(
                         site.get("download_link_element")).get_attribute("href")
                 else:
                     download_link = browser.find_element_by_xpath(site.get("download_link_element")).get_attribute(
                         "href")
-                course_info.append({"link": download_link, "year": last_updated[1], "month": last_updated[0]})
+                course_info.append({"link": download_link, "year": int(last_updated[1]), "month": int(last_updated[0]),
+                                    "website": website})
                 successful = True
 
             except ElementClickInterceptedException:
                 successful = False
+
             except NoSuchElementException:
                 successful = True
                 continue
+
     browser.quit()
+
     try:
-        results_sorted = sorted(course_info, key=itemgetter('year', 'month'), reverse=False)
+        results_sorted = sorted(course_info, key=itemgetter("year", "month"), reverse=True)
     except IndexError:
         results_sorted = None
     return results_sorted
@@ -126,12 +138,11 @@ myfreecourses = {"search_link": "https://myfreecourses.com/?s=", "search_element
 
 tutorialsplanet = {"search_link": "https://tutorialsplanet.net/?s=", "search_element": "//a[contains(text(),'",
                    "last_updated_element": "//strong[contains(text(),'Last updated ')]",
-                   "download_link_element": "//strong[contains(text(),'Download now')]"}
+                   "download_link_element": "//div[contains(@class,'audience')]//p//a"}
 
 freecoursenet = {"search_link": "https://freecoursenet.cc/?s=", "search_element": "//a[contains(text(),'",
                  "last_updated_element": "//strong[contains(text(),'Last updated ')]",
-                 "download_link_element": "//a[@class='wp-block-button__link has-background "
-                                          "has-vivid-green-cyan-background-color']"}
+                 "download_link_element": "//strong[contains(text(),'Download now')]"}
 
 udemy24 = {"search_link": "https://udemy24.com/?s=", "search_element": "//a[contains(text(),'",
            "last_updated_element": "//strong[contains(text(),'Last updated ')]",
