@@ -3,6 +3,7 @@ from operator import itemgetter
 import tldextract
 from selenium.common.exceptions import *
 from selenium.webdriver import Firefox
+from selenium.webdriver.firefox import webdriver
 from selenium.webdriver.firefox.options import Options
 from tqdm import *
 from webdrivermanager import GeckoDriverManager
@@ -12,20 +13,23 @@ def start_browser():
     opts = Options()
     # if headless == "y":
     opts.add_argument("--headless")
+    firefox_profile = webdriver.FirefoxProfile()
+    firefox_profile.set_preference('permissions.default.image', 2)
+    firefox_profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', False)
     try:
-        driver = Firefox(options=opts)
+        driver = Firefox(firefox_profile=firefox_profile, options=opts)
     except WebDriverException:
         print("Geckodriver not detected, it will now be downloaded...")
         gdd = GeckoDriverManager()
         gdd.download_and_install()
-        driver = Firefox(options=opts)
+        driver = Firefox(firefox_profile=firefox_profile, options=opts)
     return driver
 
 
 def get_course_name(udemy_url):
     browser.get(udemy_url)
     try:
-        browser.find_element_by_css_selector(".btn-primary > span:nth-child(1)")
+        browser.find_element_by_xpath("//span[contains(text(),'Add to cart')]")
         course_name = browser.find_element_by_xpath(
             "//h1[contains(@class,'clp-lead__title')]").text
     except NoSuchElementException:

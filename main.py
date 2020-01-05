@@ -7,8 +7,10 @@ from functions import *
 
 udemy_url = input("Paste in your Udemy course URL: ")
 print("")
+
 course_name = get_course_name(udemy_url)
 course_info = get_sites(course_name)
+
 if len(course_info) == 0:
     exit("The course wasn't found in any of the sharing websites.")
 for i in range(3):
@@ -39,5 +41,5 @@ if len(course_info) > 1:
             print("From website: " + str(course_info[i]["website"]))
             print("")
 
-time.sleep(1)
+time.sleep(0.5)
 exit("My work here is done. Script execution finished.")
