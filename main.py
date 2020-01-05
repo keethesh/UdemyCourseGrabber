@@ -8,7 +8,12 @@ from functions import *
 udemy_url = input("Paste in your Udemy course URL: ")
 print("")
 
-course_name = get_course_name(udemy_url)
+original_course_name = get_course_name(udemy_url)
+print(original_course_name)
+if "-" in original_course_name:
+    course_name = original_course_name[:original_course_name.index(" -")]
+else:
+    course_name = original_course_name
 course_info = get_sites(course_name)
 
 if len(course_info) == 0:
@@ -19,7 +24,7 @@ download_link = course_info[0].get("link")
 
 if "magnet" in download_link:
     download_link = findall("magnet:?xt=urn:btih:[a-zA-Z0-9]*", download_link)[0]
-print("The Udemy course \"" + course_name + "\" can be downloaded at " + download_link)
+print("The Udemy course \"" + original_course_name + "\" can be downloaded at " + download_link)
 print("It has last been updated on " + str(course_info[0]["month"]) + "/" + str(course_info[0]["year"]) +
       ", and was fetched from " + str(course_info[0]["website"]))
 print("")
