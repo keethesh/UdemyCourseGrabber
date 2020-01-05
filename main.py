@@ -9,7 +9,6 @@ udemy_url = input("Paste in your Udemy course URL: ")
 print("")
 
 original_course_name = get_course_name(udemy_url)
-print(original_course_name)
 if "-" in original_course_name:
     course_name = original_course_name[:original_course_name.index(" -")]
 else:
