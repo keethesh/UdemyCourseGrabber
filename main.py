@@ -5,12 +5,23 @@ import pyperclip
 
 from functions import *
 
-udemy_url = input("Paste in your Udemy course URL: ")
+print("")
+try:
+    udemy_url = input("Paste in your Udemy course URL, or the course name: ")
+    original_course_name = get_course_name(udemy_url)
+
+except InvalidArgumentException:
+    print("")
+    course_name_question = input("The entered value isn't a link, is it a course name? (Y/n): ").upper()
+    if course_name_question == "Y" or course_name_question != "N":
+        original_course_name = str(udemy_url)
+    else:
+        raise InvalidArgumentException(msg="Malformed URL")
+
 print("")
 
-original_course_name = get_course_name(udemy_url)
 if "-" in original_course_name:
-    course_name = original_course_name[:original_course_name.index(" -")]
+    course_name = original_course_name.replace("-", "–")
 else:
     course_name = original_course_name
 course_info = get_sites(course_name)
@@ -31,7 +42,7 @@ print("")
 copy_to_clipboard = input("Do you want me to copy the link to your clipboard? (Y/n): ").upper()
 if copy_to_clipboard == "Y" or copy_to_clipboard != "N":
     pyperclip.copy(download_link)
-    print("The link has successfully been copied to clipboard.")
+    print("The link has successfully been copied to the clipboard.")
 
 if len(course_info) > 1:
     see_all = input("Do you want to see the other links as well? (y/N): ").lower()
