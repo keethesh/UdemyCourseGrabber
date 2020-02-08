@@ -48,11 +48,9 @@ def get_course_name(udemy_url):
         return course_name
     except NoSuchElementException:
         if browser.find_element_by_xpath("//h1").text == "Please verify you are a human":
-            headless = False
-            print("Udemy has detected that the browser is automated, the browser will "
-                  "now restart without headless mode so that you can complete the captcha")
-            # browser.quit()
-            main()
+            print("Udemy has detected that the browser is automated and is asking for a captcha. Until a solution is found,\nthe only thing to do is to directly input the course name")
+            browser.quit()
+            exit("Ciao.")
         else:
             raise NoSuchElementException("The provided link is broken")
 
