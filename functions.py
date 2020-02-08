@@ -1,40 +1,60 @@
 from operator import itemgetter
-
 import tldextract
 from selenium.common.exceptions import *
 from selenium.webdriver import Firefox
+from selenium.webdriver import Chrome
 from selenium.webdriver.firefox import webdriver
-from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.options import Options as firefoxOpts
+from selenium.webdriver.chrome.options import Options as chromeOpts
 from tqdm import *
-from webdrivermanager import GeckoDriverManager
+import pyderman
 
 
-def start_browser():
-    opts = Options()
-    # if headless == "y":
-    opts.add_argument("--headless")
-    firefox_profile = webdriver.FirefoxProfile()
-    firefox_profile.set_preference('permissions.default.image', 2)
-    firefox_profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', False)
+def start_browser(headless):
     try:
-        driver = Firefox(firefox_profile=firefox_profile, options=opts)
-    except WebDriverException:
-        print("Geckodriver not detected, it will now be downloaded...")
-        gdd = GeckoDriverManager()
-        gdd.download_and_install()
-        driver = Firefox(firefox_profile=firefox_profile, options=opts)
+        opts = firefoxOpts()
+        if headless:
+            opts.add_argument("--headless")
+        firefox_profile = webdriver.FirefoxProfile()
+        firefox_profile.set_preference('permissions.default.image', 2)
+        firefox_profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', False)
+        try:
+            driver = Firefox(firefox_profile=firefox_profile, options=opts)
+        except WebDriverException:
+            print("Geckodriver not detected, it will now be downloaded...")
+            pyderman.install(browser=pyderman.firefox, file_directory='./', filename="geckodriver.exe")
+            driver = Firefox(firefox_profile=firefox_profile, options=opts)
+
+    except SessionNotCreatedException:
+        opts = chromeOpts()
+        # opts.add_argument("--headless")
+        prefs = {'profile.managed_default_content_settings.images': 2}
+        opts.add_experimental_option("prefs", prefs)
+        try:
+            driver = Chrome(chrome_options=opts)
+        except WebDriverException:
+            print("Chromedriver not detected, it will now be downloaded...")
+            pyderman.install(browser=pyderman.chrome, file_directory='./', filename="chromedriver.exe")
+            driver = Chrome(chrome_options=opts)
     return driver
 
 
 def get_course_name(udemy_url):
     browser.get(udemy_url)
     try:
-        browser.find_element_by_xpath("//span[contains(text(),'Add to cart')]")
+        browser.find_element_by_xpath("//span[@class='money-back']")
         course_name = browser.find_element_by_xpath(
             "//h1[contains(@class,'clp-lead__title')]").text
+        return course_name
     except NoSuchElementException:
-        raise NoSuchElementException("The provided link is broken")
-    return course_name
+        if browser.find_element_by_xpath("//h1").text == "Please verify you are a human":
+            headless = False
+            print("Udemy has detected that the browser is automated, the browser will "
+                  "now restart without headless mode so that you can complete the captcha")
+            # browser.quit()
+            main()
+        else:
+            raise NoSuchElementException("The provided link is broken")
 
 
 def get_sites(course_name):
@@ -47,8 +67,10 @@ def get_sites(course_name):
         successful = False
 
         while not successful:
-            browser.get(site.get("search_link") + course_name)
-
+            try:
+                browser.get(site.get("search_link") + course_name)
+            except:
+                pass
             try:
                 search_result = browser.find_element_by_xpath(
                     site.get("search_element") + str(course_name) + "')]")
@@ -164,4 +186,4 @@ sites = {"freecoursesite": freecoursesite,
          "freecoursenet": freecoursenet,
          "udemy24": udemy24}
 
-browser = start_browser()
+browser = start_browser(headless=True)

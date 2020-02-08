@@ -1,4 +1,3 @@
-import time
 from re import findall
 
 import pyperclip
@@ -7,10 +6,11 @@ from functions import *
 
 print("")
 try:
+    headless = False
     udemy_url = input("Paste in your Udemy course URL, or the course name: ")
     original_course_name = get_course_name(udemy_url)
 
-except InvalidArgumentException:
+except InvalidArgumentException or WebDriverException:
     print("")
     course_name_question = input("The entered value isn't a link, is it a course name? (Y/n): ").upper()
     if course_name_question == "Y" or course_name_question != "N":
@@ -22,6 +22,10 @@ print("")
 
 if "-" in original_course_name:
     course_name = original_course_name.replace("-", "–")
+
+elif ":" in original_course_name:
+    course_name = original_course_name.replace(":", "")
+
 else:
     course_name = original_course_name
 course_info = get_sites(course_name)
@@ -52,7 +56,10 @@ if len(course_info) > 1:
         for i in range(1, len(course_info)):
             print("")
             print("Last update: " + str(course_info[i]["month"]) + "/" + str(course_info[i]["year"]))
-            print("Download link: " + str(course_info[i]["link"]))
+            download_link = str(course_info[i]["link"])
+            if "magnet" in download_link:
+                download_link = findall("magnet:?xt=urn:btih:[a-zA-Z0-9]*", download_link)
+            print("Download link: " + download_link)
             print("From website: " + str(course_info[i]["website"]))
             print("")
 

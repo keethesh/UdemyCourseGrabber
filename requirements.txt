@@ -1,5 +1,5 @@
+pyderman
 tqdm
 tldextract
-webdrivermanager
 pyperclip
 selenium
