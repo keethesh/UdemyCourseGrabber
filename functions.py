@@ -145,12 +145,6 @@ desirecourse = {"search_link": "https://desirecourse.net/?s=", "search_element":
                                          "mb-corners-default "
                                          "mb-text-style-heavy')]"}
 
-udemyfreecoursesdownload = {"search_link": "https://udemyfreecoursesdownload.com/?s=",
-                            "search_element": "//a[contains(text(),'",
-                            "last_updated_element": "//div[contains(text(),'Final up to date')]",
-                            "download_link_element": "//a[@class='fasc-button fasc-size-xlarge fasc-type-flat']",
-                            "custom_split": "Final up to date "}
-
 myfreecourses = {"search_link": "https://myfreecourses.com/?s=", "search_element": "//a[contains(text(),'",
                  "last_updated_element": "//strong[contains(text(),'Last updated ')]",
                  "download_link_element": "//body[@class='post-template-default single single-post postid-26087 "
@@ -178,7 +172,6 @@ sites = {"freecoursesite": freecoursesite,
          "freecourseudemy": freecourseudemy,
          "paidcoursesforfree": paidcoursesforfree,
          "desirecourse": desirecourse,
-         "udemyfreecoursesdownload": udemyfreecoursesdownload,
          "tutorialsplanet": tutorialsplanet,
          "myfreecourses": myfreecourses,
          "freecoursenet": freecoursenet,
