@@ -1,30 +1,23 @@
+import time
 from re import findall
 
 import pyperclip
+import validators
 
 from functions import *
 
 print("")
-try:
-    headless = False
-    udemy_url = input("Paste in your Udemy course URL, or the course name: ")
+headless = False
+udemy_url = input("Paste in your Udemy course URL, or the course name: ").strip()
+if validators.url(udemy_url):
     original_course_name = get_course_name(udemy_url)
-
-except InvalidArgumentException or WebDriverException:
+else:
+    print("The value entered is not a link, taking it as the course name.")
     print("")
-    course_name_question = input("The entered value isn't a link, is it a course name? (Y/n): ").upper()
-    if course_name_question == "Y" or course_name_question != "N":
-        original_course_name = str(udemy_url)
-    else:
-        raise InvalidArgumentException(msg="Malformed URL")
-
-print("")
+    original_course_name = udemy_url
 
 if "-" in original_course_name:
-    course_name = original_course_name.replace("-", "–")
-
-elif ":" in original_course_name:
-    course_name = original_course_name.replace(":", "")
+    course_name = original_course_name.replace("-", "")
 
 else:
     course_name = original_course_name

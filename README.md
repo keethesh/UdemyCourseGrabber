@@ -16,11 +16,6 @@ git
 apt-get update
 apt-get install git
 ```
-Firefox-ESR
-```bash
-apt-get update
-apt-get install firefox-esr
-```
 ### Install instructions
 ```git
 git clone https://github.com/keethesh/UdemyCourseGrabber.git
@@ -37,8 +32,9 @@ python3 main.py
 ```
 
 ### Todo
- - [ ] Use concurrency for faster program execution
- - [ ] Add support for other browsers, such as Chrome, Opera or IE
+ - [X] Use ~~concurrency~~ lxml for faster program execution
+
+- ~~Add support for other browsers, such as Chrome, Opera or IE~~
  - [ ] Add a command-line version, needing no further interactions than giving arguments at start
  - Add more courses sources
 ## Contributing

@@ -1,5 +1,6 @@
-pyderman
 tqdm
+lxml
+requests
+validators
 tldextract
 pyperclip
-selenium
