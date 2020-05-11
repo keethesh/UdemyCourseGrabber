@@ -1,5 +1,7 @@
+import argparse
+import csv
+import sys
 import time
-from re import findall
 
 import pyperclip
 import validators
@@ -7,29 +9,44 @@ import validators
 from functions import *
 
 
-# def command_line(udemy_url, copy_to_clipboard, output_to_file, filename):
-#     if validators.url(udemy_url):
-#         original_course_name = get_course_name(udemy_url)
-#     else:
-#         print("The value entered is not a link, taking it as the course name.")
-#         print("")
-#         original_course_name = udemy_url
-#
-#     if "-" in original_course_name:
-#         course_name = original_course_name.replace("-", "")
-#     else:
-#         course_name = original_course_name
-#     course_info = get_sites(course_name)
-#     if len(course_info) == 0:
-#         exit("The course wasn't found in any of the sharing websites.")
-#     for _ in range(3):
-#         print("")
-#     download_link = course_info[0].get("link")
-#     if "magnet" in download_link:
-#         download_link = findall("magnet:?xt=urn:btih:[a-zA-Z0-9]*", download_link)[0]
-#     if copy_to_clipboard:
-#         pyperclip.copy(download_link)
-#     if output_to_file:
+def write_to_file(data_dict, filename):
+    with open(filename, mode='a+', encoding="UTF-8", newline='') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        csv_file.seek(0, 2)
+        if csv_file.tell() == 0:
+            writer.writeheader()
+        writer.writerow(data_dict)
+
+
+def command_line(udemy_url, copy_to_clipboard=False, filename="output.csv"):
+    if validators.url(udemy_url):
+        original_course_name = get_course_name(udemy_url)
+    else:
+        original_course_name = udemy_url
+
+    course_name = original_course_name.replace("-", "")
+    course_info = get_sites(course_name)
+
+    if len(course_info) == 0:
+        exit("The course wasn't found in any of the sharing websites.")
+
+    download_link = course_info[0].get("link")
+    last_updated = str(course_info[0]["month"]) + "/" + str(course_info[0]["year"])
+    from_website = course_info[0].get("website")
+    print("Download link: " + download_link)
+    print("Last updated: " + last_updated)
+    print("Fetched from " + from_website)
+    if copy_to_clipboard:
+        pyperclip.copy(download_link)
+
+    if not filename == "":
+        for info in course_info:
+            download_link = info.get("link")
+            last_updated = str(info["month"]) + "/" + str(info["year"])
+            from_website = info.get("website")
+            data = {"Course name": original_course_name, "Last updated": last_updated, "Download Link": download_link,
+                    "Provider": from_website}
+            write_to_file(data, filename)
 
 
 def interactive():
@@ -42,10 +59,7 @@ def interactive():
         print("")
         original_course_name = udemy_url
 
-    if "-" in original_course_name:
-        course_name = original_course_name.replace("-", "")
-    else:
-        course_name = original_course_name
+    course_name = original_course_name.replace("-", "")
     course_info = get_sites(course_name)
 
     if len(course_info) == 0:
@@ -54,8 +68,6 @@ def interactive():
         print("")
     download_link = course_info[0].get("link")
 
-    if "magnet" in download_link:
-        download_link = findall("magnet:?xt=urn:btih:[a-zA-Z0-9]*", download_link)[0]
     print("The Udemy course \"" + original_course_name + "\" can be downloaded at " + download_link)
     print("It has last been updated on " + str(course_info[0]["month"]) + "/" + str(course_info[0]["year"]) +
           ", and was fetched from " + str(course_info[0]["website"]))
@@ -82,5 +94,24 @@ def interactive():
                 print("")
 
 
+fieldnames = ["Course name", "Last updated", "Download Link", "Provider"]
+if len(sys.argv) == 1:
+    interactive()
+else:
+    parser = argparse.ArgumentParser(description='Script that searches for "ripped" Udemy courses')
+    parser.add_argument("course")
+    parser.add_argument("-c", action='store_true', default=True,
+                        help="Add this flag to copy the download link to clipboard")
+    parser.add_argument("-o", type=str, nargs='?', const=True, default="output.csv",
+                        help="Stores the outputs to the specified CSV file. Pass argument \"plsno\" to disable writing to file.")
+
+    args = parser.parse_args()
+    course = args.course
+    clipboard = args.c
+    output_file = args.o
+
+    if output_file == "plsno":
+        output_file = ""
+    command_line(course, clipboard, output_file)
 time.sleep(0.5)
 exit("My work here is done. Script execution finished.")
