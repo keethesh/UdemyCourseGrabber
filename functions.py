@@ -23,7 +23,6 @@ def get_sites(course_name):
     course_info = []
     values = tqdm(sites.values())
     for site in values:
-
         ext = tldextract.extract(site.get("search_link"))
         website = ext.domain + "." + ext.suffix
         tqdm.set_description(values, desc=("Searching for course on " + website))
@@ -45,7 +44,7 @@ def get_sites(course_name):
                 search_result = search_result[0].get("href")
         else:
             search_result = search_result[0].get("href")
-        if site.get("mustjoinurl"):
+        if site.get("must_join_url"):
             search_result = "https://" + website + "/" + search_result
         response = requests.get(search_result, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                                                                       "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -124,13 +123,14 @@ myfreecourses = {"search_link": "https://myfreecourses.com/?s=", "search_element
                                           "@class='requirements__content']/div[@class='audience']/div["
                                           "@class='requirements__content']/div[@class='audience']/a[1]"}
 
-freecoursenet = {"search_link": "https://freecoursenet.cc/?s=", "search_element": search_element_common,
+freecoursenet = {"search_link": "https://freecoursenet.cc/?s=",
+                 "search_element": "//a[contains(@class,'post-title post-url')][contains(text(),'",
                  "last_updated_element": last_updated_common,
                  "download_link_element": "//article//a[1]//img[1]/ancestor::a"}
 
 udemy24 = {"search_link": "https://udemy24.com/?s=", "search_element": search_element_common,
            "last_updated_element": last_updated_common,
-           "download_link_element": "//p[2]//a[1]"}
+           "download_link_element": "//p[2]//a[1]", "must_join_url": True}
 
 sites = {"freecoursesite": freecoursesite,
          "freecourselab": freecourselab,
