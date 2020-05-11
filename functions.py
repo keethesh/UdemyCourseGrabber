@@ -101,21 +101,19 @@ freecourseudemy = {"search_link": "https://freecourseudemy.com/?s=", "search_ele
                    "download_link_element": "//a[contains(@class,'mb-button mb-style-traditional mb-size-default "
                                             "mb-corners-default mb-text-style-heavy')]"}
 
-paidcoursesforfree = {"search_link": "https://paidcoursesforfree.com/?s=", "search_element": "//a[@class='post-url "
-                                                                                             "post-title' and contains("
-                                                                                             "text(),'",
+paidcoursesforfree = {"search_link": "https://paidcoursesforfree.com/?s=",
+                      "search_element": "//a[contains(@class,'post-title post-url')][contains(text(),'",
                       "last_updated_element": last_updated_common,
-                      "download_link_element": "Udemy – ", "custom_download_link_by": "plt"}
+                      "download_link_element": "//a[contains(text(),'Download Now')]"}
 
 desirecourse = {"search_link": "https://desirecourse.net/?s=", "search_element": search_element_common,
                 "last_updated_element": last_updated_common,
                 "download_link_element": "//a[contains(@class,'mb-button mb-style-traditional mb-size-default "
-                                         "mb-corners-default "
-                                         "mb-text-style-heavy')]"}
+                                         "mb-corners-default mb-text-style-heavy')]"}
 
 tutorialsplanet = {"search_link": "https://tutorialsplanet.net/?s=", "search_element": search_element_common,
                    "last_updated_element": last_updated_common,
-                   "download_link_element": "//div[contains(@class,'audience')]//p//a"}
+                   "download_link_element": "//strong[contains(text(),'Download Now')]"}
 
 myfreecourses = {"search_link": "https://myfreecourses.com/?s=", "search_element": search_element_common,
                  "last_updated_element": last_updated_common,
@@ -128,22 +126,22 @@ myfreecourses = {"search_link": "https://myfreecourses.com/?s=", "search_element
 
 freecoursenet = {"search_link": "https://freecoursenet.cc/?s=", "search_element": search_element_common,
                  "last_updated_element": last_updated_common,
-                 "download_link_element": "//strong[contains(text(),'Download now')]"}
+                 "download_link_element": "//article//a[1]//img[1]/ancestor::a"}
 
 udemy24 = {"search_link": "https://udemy24.com/?s=", "search_element": search_element_common,
            "last_updated_element": last_updated_common,
-           "download_link_element": "//a[contains(text(),'Download Torrent')]", "mustjoinurl": True}
+           "download_link_element": "//p[2]//a[1]"}
 
-sites = {"freecoursesite": freecoursesite,  # works
-         "freecourselab": freecourselab,  # works
-         # "getfreecourses": getfreecourses,  # doesn't work
-         "freecourseudemy": freecourseudemy,  # works
-         # "paidcoursesforfree": paidcoursesforfree,  # doesn't work
-         "desirecourse": desirecourse,  # works
-         "tutorialsplanet": tutorialsplanet,  # works
-         # "myfreecourses": myfreecourses, # doesn't work
-         # "freecoursenet": freecoursenet,  # doesn't work
-         "udemy24": udemy24}  # works
+sites = {"freecoursesite": freecoursesite,
+         "freecourselab": freecourselab,
+         "getfreecourses": getfreecourses,
+         "freecourseudemy": freecourseudemy,
+         "paidcoursesforfree": paidcoursesforfree,
+         "desirecourse": desirecourse,
+         "tutorialsplanet": tutorialsplanet,
+         "myfreecourses": myfreecourses,
+         "freecoursenet": freecoursenet,
+         "udemy24": udemy24}
 
 useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 " \
             "Safari/537.36 "
