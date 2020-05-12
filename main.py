@@ -87,8 +87,6 @@ def interactive():
                 print("")
                 print("Last update: " + str(course_info[i]["month"]) + "/" + str(course_info[i]["year"]))
                 download_link = str(course_info[i]["link"])
-                if "magnet" in download_link:
-                    download_link = findall("magnet:?xt=urn:btih:[a-zA-Z0-9]*", download_link)
                 print("Download link: " + download_link)
                 print("From website: " + str(course_info[i]["website"]))
                 print("")
