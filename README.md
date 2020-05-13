@@ -35,7 +35,7 @@ python3 main.py
  - [X] Use ~~concurrency~~ lxml for faster program execution
 
 - ~~Add support for other browsers, such as Chrome, Opera or IE~~
- - [ ] Add a command-line version, needing no further interactions than giving arguments at start
+ - [X] Add a command-line version, needing no further interactions than giving arguments at start
  - Add more courses sources
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
