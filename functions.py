@@ -118,7 +118,7 @@ tutorialsplanet = {"search_link": "https://tutorialsplanet.net/?s=", "search_ele
                    "download_link_element": "//strong[contains(text(),'Download Now')]//ancestor::a"}
 
 myfreecourses = {"search_link": "https://myfreecourses.com/?s=", "search_element": search_element_common,
-                 "last_updated_element": last_updated_common,
+                 "last_updated_element": "//span[contains(text(),'Last updated')]",
                  "download_link_element": "//body[@class='post-template-default single single-post postid-26087 "
                                           "single-format-standard has-ednbar']/div[@id='page sb-site']/div["
                                           "@id='content']/div[@id='primary']/main[@id='main']/article["
