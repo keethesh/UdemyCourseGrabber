@@ -115,7 +115,7 @@ desirecourse = {"search_link": "https://desirecourse.net/?s=", "search_element":
 
 tutorialsplanet = {"search_link": "https://tutorialsplanet.net/?s=", "search_element": search_element_common,
                    "last_updated_element": last_updated_common,
-                   "download_link_element": "//strong[contains(text(),'Download Now')]"}
+                   "download_link_element": "//strong[contains(text(),'Download Now')]//ancestor::a"}
 
 myfreecourses = {"search_link": "https://myfreecourses.com/?s=", "search_element": search_element_common,
                  "last_updated_element": last_updated_common,
