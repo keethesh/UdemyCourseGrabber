@@ -50,13 +50,12 @@ def command_line(udemy_url, copy_to_clipboard=False, filename="output.csv"):
 
 
 def interactive():
-    print("")
+    print("\n")
     udemy_url = input("Paste in your Udemy course URL, or the course name: ").strip()
     if validators.url(udemy_url):
         original_course_name = get_course_name(udemy_url)
     else:
-        print("The value entered is not a link, taking it as the course name.")
-        print("")
+        print("The value entered is not a link, taking it as the course name.\n")
         original_course_name = udemy_url
 
     course_name = original_course_name.replace("-", "")
@@ -64,14 +63,12 @@ def interactive():
 
     if len(course_info) == 0:
         exit("The course wasn't found in any of the sharing websites.")
-    for i in range(3):
-        print("")
+    print("\n\n\n")
     download_link = course_info[0].get("link")
 
     print("The Udemy course \"" + original_course_name + "\" can be downloaded at " + download_link)
     print("It has last been updated on " + str(course_info[0]["month"]) + "/" + str(course_info[0]["year"]) +
-          ", and was fetched from " + str(course_info[0]["website"]))
-    print("")
+          ", and was fetched from " + str(course_info[0]["website"]) + "\n")
 
     copy_to_clipboard = input("Do you want me to copy the link to your clipboard? (Y/n): ").upper()
     if copy_to_clipboard == "Y" or copy_to_clipboard != "N":
@@ -84,12 +81,10 @@ def interactive():
             see_all = "n"
         if see_all == "y":
             for i in range(1, len(course_info)):
-                print("")
-                print("Last update: " + str(course_info[i]["month"]) + "/" + str(course_info[i]["year"]))
+                print("\nLast update: " + str(course_info[i]["month"]) + "/" + str(course_info[i]["year"]))
                 download_link = str(course_info[i]["link"])
                 print("Download link: " + download_link)
-                print("From website: " + str(course_info[i]["website"]))
-                print("")
+                print("From website: " + str(course_info[i]["website"]) + "\n")
 
 
 fieldnames = ["Course name", "Last updated", "Download Link", "Provider"]
