@@ -134,7 +134,7 @@ freecoursenet = {"search_link": "https://freecoursenet.cc/?s=",
 
 udemy24 = {"search_link": "https://udemy24.com/?s=", "search_element": search_element_common,
            "last_updated_element": last_updated_common,
-           "download_link_element": "//p[2]//a[1]", "must_join_url": True}
+           "download_link_element": "//a[contains(text(),'Download Course')]", "must_join_url": True}
 
 sites = {"freecoursesite": freecoursesite,
          "freecourselab": freecourselab,
