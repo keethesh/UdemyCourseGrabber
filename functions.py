@@ -70,8 +70,9 @@ def get_sites(course_name):
                 continue
             else:
                 download_link = download_link[0].get("href")
-            if "magnet" in download_link:
-                download_link = findall("magnet:?xt=urn:btih:[a-zA-Z0-9]*", download_link)[0]
+                magnet_links = findall("magnet:?xt=urn:btih:[a-zA-Z0-9]*", download_link)
+                if len(magnet_links) > 0:
+                    download_link = magnet_links[0]
         course_info.append({"link": download_link, "year": int(last_updated[1]), "month": int(last_updated[0]),
                             "website": website})
 
