@@ -1,7 +1,7 @@
 # Udemy Course Grabber
 
 ## Description
-have you enrolled  for  a Udemy course , but don't have a single penny ? , don't worry because This python program searches for your desired course in more than [insert a large  number here] websites, compares the latest updated , and give's you the download link of the latest one in return , but you also have the choice to see the other one's as well!
+Have you enrolled  for  a Udemy course , but don't have a single penny ? , don't worry because This python program searches for your desired course in more than [insert a large  number here] websites, compares the latest updated , and give's you the download link of the latest one in return , but you also have the choice to see the other one's as well!
 
 ## Installation
 
