@@ -32,7 +32,7 @@ python3 main.py
 ```
 
 ### Todo
- - [X] Use ~~concurrency~~ lxml for faster program execution
+ - [X] Use ~~concurrency~~ aiohttp with lxml for faster program execution
 
 - ~~Add support for other browsers, such as Chrome, Opera or IE~~
  - [X] Add a command-line version, needing no further interactions than giving arguments at start
