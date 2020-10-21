@@ -1,6 +1,5 @@
 tqdm
 lxml
-requests
+aiohttp[speedups]
 validators
-tldextract
 pyperclip
