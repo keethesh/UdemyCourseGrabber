@@ -27,8 +27,7 @@ class Scraper:
         self._useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' \
                           'AppleWebKit/537.36 (KHTML, like Gecko) ' \
                           'Chrome/86.0.4240.75 Safari/537.36'
-        self._common_updated_xpath = "//strong[starts-with(text(),'Last updated ')]"
-        self._common_updated_xpath2 = "//strong[contains(text(),'Last updated ')]"
+        self._common_updated_xpath = "//strong[contains(text(),'Last updated ')]"
 
         self._regex = compile("magnet:\?xt=urn:btih:[a-zA-Z0-9]*")
 
@@ -54,7 +53,10 @@ class Scraper:
                                self.desirecourse,
                                self.tutorialsplanet,
                                self.myfreecourses,
-                               self.udemy24]
+                               self.udemy24,
+                               self.freeallcourse,
+                               self.ftuudemy,
+                               self.freecoursesdownload]
 
     async def get_course_name(self):
         async with aiohttp.ClientSession(headers={"User-Agent": self._useragent}, timeout=aiohttp.ClientTimeout(10)) \
@@ -71,7 +73,7 @@ class Scraper:
     def search_course(self):
         results = self.loop.run_until_complete(self.search_course_wrapper())
         if results:
-            results = sorted(results, key=itemgetter("year", "month"))
+            results = sorted(results, key=itemgetter("year", "month"), reverse=True)
         return results
 
     async def search_course_wrapper(self):
@@ -83,6 +85,8 @@ class Scraper:
                 result = await func
                 if result:
                     last_updated = [int(i) for i in result['last_updated'].split('Last updated ')[1].split('/')]
+                    if len(str(last_updated[0])) < len(str(last_updated[1])):
+                        last_updated = last_updated[::-1]
                     result['year'], result['month'] = last_updated
                     results.append(result)
 
@@ -209,7 +213,7 @@ class Scraper:
             doc = html.fromstring(response)
 
             download_link = doc.xpath("//a[contains(text(),'DOWNLOAD COURSE')]")[0].get('href')
-            last_updated = doc.xpath(self._common_updated_xpath2)[0].text
+            last_updated = doc.xpath(self._common_updated_xpath)[0].text
         except (IndexError, KeyError):
             return
 
@@ -231,7 +235,7 @@ class Scraper:
             doc = html.fromstring(response)
 
             download_link = doc.xpath("//div[@data-purpose='course-audience']/p/a")[0].get('href')
-            last_updated = doc.xpath(self._common_updated_xpath2)[0].text
+            last_updated = doc.xpath(self._common_updated_xpath)[0].text
         except (IndexError, KeyError):
             return
 
@@ -253,7 +257,7 @@ class Scraper:
             doc = html.fromstring(response)
 
             download_link = doc.xpath("//a[@id='download']")[0].get('href')
-            last_updated = doc.xpath(self._common_updated_xpath2)[0].text
+            last_updated = doc.xpath(self._common_updated_xpath)[0].text
         except (IndexError, KeyError):
             return
 
@@ -283,3 +287,69 @@ class Scraper:
         if magnet_links:
             download_link = magnet_links[0]
         return {"link": download_link, "last_updated": last_updated, "website": 'udemy24.com'}
+
+    async def freeallcourse(self, session):
+        async with session.get(f'https://freeallcourse.com/?s={self._mod_name}') as response:
+            response = await response.read()
+        doc = html.fromstring(response)
+        search_results = doc.xpath(f"//a[contains(text(),'{self._mod_name}')]")
+        if not search_results:
+            return
+        try:
+            async with session.get(search_results[0].get("href")) as response:
+                response = await response.read()
+            doc = html.fromstring(response)
+
+            download_link = doc.xpath("//a[contains(text(),'Download Course')]")[0].get('href')
+            last_updated = doc.xpath("//strong/br")[0].tail
+        except (IndexError, KeyError):
+            return
+
+        magnet_links = self._regex.findall(download_link)
+        if magnet_links:
+            download_link = magnet_links[0]
+        return {"link": download_link, "last_updated": last_updated, "website": 'freeallcourse.com'}
+
+    async def ftuudemy(self, session):
+        async with session.get(f'https://ftuudemy.com/?s={self._mod_name}') as response:
+            response = await response.read()
+        doc = html.fromstring(response)
+        search_results = doc.xpath(f"//a[contains(text(),'{self._mod_name}')]")
+        if not search_results:
+            return
+        try:
+            async with session.get(search_results[0].get("href")) as response:
+                response = await response.read()
+            doc = html.fromstring(response)
+
+            download_link = doc.xpath("//a[@id='download']")[0].get('href')
+            last_updated = doc.xpath(self._common_updated_xpath)[0].text
+        except (IndexError, KeyError):
+            return
+
+        magnet_links = self._regex.findall(download_link)
+        if magnet_links:
+            download_link = magnet_links[0]
+        return {"link": download_link, "last_updated": last_updated, "website": 'ftuudemy.com'}
+
+    async def freecoursesdownload(self, session):
+        async with session.get(f'https://freecoursesdownload.com/?s={self._mod_name}') as response:
+            response = await response.read()
+        doc = html.fromstring(response)
+        search_results = doc.xpath(f"//a[contains(text(),'{self._mod_name}')]")
+        if not search_results:
+            return
+        try:
+            async with session.get(search_results[0].get("href")) as response:
+                response = await response.read()
+            doc = html.fromstring(response)
+
+            download_link = doc.xpath("//a[contains(text(),'DOWNLOAD COURSE')]")[0].get('href')
+            last_updated = doc.xpath(self._common_updated_xpath)[0].text
+        except (IndexError, KeyError):
+            return
+
+        magnet_links = self._regex.findall(download_link)
+        if magnet_links:
+            download_link = magnet_links[0]
+        return {"link": download_link, "last_updated": last_updated, "website": 'freecoursesdownload.com'}
