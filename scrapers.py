@@ -54,7 +54,8 @@ class Scraper:
                                  self.__myfreecourses,
                                  self.__udemy24,
                                  self.__freeallcourse,
-                                 self.__freecoursesdownload]
+                                 self.__freecoursesdownload,
+                                 self.__freetutorialsudemy]
 
     async def get_course_name(self):
         async with aiohttp.ClientSession(headers={"User-Agent": self.__useragent}, timeout=aiohttp.ClientTimeout(10)) \
@@ -308,3 +309,25 @@ class Scraper:
         if magnet_links:
             download_link = magnet_links[0]
         return {"link": download_link, "last_updated": last_updated, "website": 'freecoursesdownload.com'}
+
+    async def __freetutorialsudemy(self, session):
+        async with session.get(f'https://freetutorialsudemy.com/?s={self.__mod_name}') as response:
+            response = await response.read()
+        doc = html.fromstring(response)
+        search_results = doc.xpath(f"//a[contains(text(),'{self.__mod_name}')]")
+        if not search_results:
+            return
+        try:
+            async with session.get(search_results[0].get("href")) as response:
+                response = await response.read()
+            doc = html.fromstring(response)
+
+            download_link = doc.xpath("//a[contains(text(),'Download link')]")[0].get('href')
+            last_updated = doc.xpath("//strong/text()[contains(.,'Last updated ')]")[0].text
+        except (IndexError, KeyError):
+            return
+
+        magnet_links = self.__regex.findall(download_link)
+        if magnet_links:
+            download_link = magnet_links[0]
+        return {"link": download_link, "last_updated": last_updated, "website": 'freetutorialsudemy.com'}
