@@ -46,7 +46,6 @@ class Scraper:
 
         self._mod_name = self.course_name.replace("-", "")
         self.scraping_funcs = [self.freecoursesite,
-                               self.freecourselab,
                                self.getfreecourses,
                                self.freecourseudemy,
                                self.paidcoursesforfree,
@@ -55,7 +54,6 @@ class Scraper:
                                self.myfreecourses,
                                self.udemy24,
                                self.freeallcourse,
-                               self.ftuudemy,
                                self.freecoursesdownload]
 
     async def get_course_name(self):
@@ -112,27 +110,6 @@ class Scraper:
         if magnet_links:
             download_link = magnet_links[0]
         return {"link": download_link, "last_updated": last_updated, "website": 'freecoursesite.com'}
-
-    async def freecourselab(self, session):
-        async with session.get(f'https://freecourselab.me/?s={self._mod_name}') as response:
-            response = await response.read()
-        doc = html.fromstring(response)
-        search_results = doc.xpath(f"//a[contains(text(),'{self._mod_name}')]")
-        if not search_results:
-            return
-        try:
-            async with session.get(search_results[0].get("href")) as response:
-                response = await response.read()
-            doc = html.fromstring(response)
-            download_link = doc.xpath("//div[@data-purpose='course-audience']/p/a")[0].get('href')
-            last_updated = doc.xpath(self._common_updated_xpath)[0].text
-        except (IndexError, KeyError):
-            return
-
-        magnet_links = self._regex.findall(download_link)
-        if magnet_links:
-            download_link = magnet_links[0]
-        return {"link": download_link, "last_updated": last_updated, "website": 'freecourselab.me'}
 
     async def getfreecourses(self, session):
         async with session.get(f'https://getfreecourses.co/?s={self._mod_name}') as response:
@@ -309,28 +286,6 @@ class Scraper:
         if magnet_links:
             download_link = magnet_links[0]
         return {"link": download_link, "last_updated": last_updated, "website": 'freeallcourse.com'}
-
-    async def ftuudemy(self, session):
-        async with session.get(f'https://ftuudemy.com/?s={self._mod_name}') as response:
-            response = await response.read()
-        doc = html.fromstring(response)
-        search_results = doc.xpath(f"//a[contains(text(),'{self._mod_name}')]")
-        if not search_results:
-            return
-        try:
-            async with session.get(search_results[0].get("href")) as response:
-                response = await response.read()
-            doc = html.fromstring(response)
-
-            download_link = doc.xpath("//a[@id='download']")[0].get('href')
-            last_updated = doc.xpath(self._common_updated_xpath)[0].text
-        except (IndexError, KeyError):
-            return
-
-        magnet_links = self._regex.findall(download_link)
-        if magnet_links:
-            download_link = magnet_links[0]
-        return {"link": download_link, "last_updated": last_updated, "website": 'ftuudemy.com'}
 
     async def freecoursesdownload(self, session):
         async with session.get(f'https://freecoursesdownload.com/?s={self._mod_name}') as response:
